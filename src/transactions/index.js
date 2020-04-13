@@ -1,37 +1,50 @@
 import Web3 from 'web3';
-import Transaction from '@catalyst-net-js/tx';
-import {HDWalletProvider} from '@catalyst-net-js/truffle-provider';
 
-const mnemonic = 'silly funny task remove diamond maximum rack awesome sting chalk recycle also social banner verify';
-const provider = new HDWalletProvider(mnemonic, `http://localhost:5005/api/eth/request`);
-const web3 = new Web3(provider);
-const address = provider.getAddress(0);
-
-const { numberToHex, toWei, bytesToHex } = web3.utils;
-
-export function sendTransaction(to, value, gasPrice, gasLimit) {
-    web3.eth.sendTransaction({
-    from: address,
-    to: to,
-    value: numberToHex(toWei(value, 'ether')),
-    gasPrice: numberToHex(toWei(gasPrice, 'gwei')),
-    gasLimit: numberToHex(gasLimit),
-    data: '0x0',
-    }, function(error, hash){
-    if(error) console.error(error);
-    console.log('Hash: ', hash);
-    });
+async function loadProvider() {
+    const mnemonic = 'silly funny task remove diamond maximum rack awesome sting chalk recycle also social banner verify';
+    const { HDWalletProvider } = (await import('@catalyst-net-js/truffle-provider'));
+    return new HDWalletProvider(mnemonic, 'http://localhost:5005/api/eth/request');
 }
 
+async function loadTxLib() {
+    return import('@catalyst-net-js/tx');
+}
+
+const { numberToHex, toWei, bytesToHex } = Web3.utils;
+
+// export async function sendTransaction(to, value, gasPrice, gasLimit) {
+//     const provider = (await loadProvider());
+//     const web3 = new Web3(provider);
+//     const address = provider.getAddress(0);
+//     console.log(address);
+
+//     await web3.eth.sendTransaction({
+//     from: address,
+//     to: to,
+//     value: numberToHex(toWei(value.toString(), 'ether')),
+//     gasPrice: numberToHex(toWei(gasPrice.toString(), 'gwei')),
+//     gasLimit: numberToHex(gasLimit),
+//     data: '0x0',
+//     }, function(error, hash){
+//     if(error) console.error(error);
+//     console.log('Hash: ', hash);
+//     return hash;
+//     });
+// }
+
 export async function sendRawTransaction(to, value, gasPrice, gasLimit) {
+    const provider = (await loadProvider());
+    const address = provider.getAddress(0);
+    const web3 = new Web3('http://localhost:5005/api/eth/request');
     const nonce = await web3.eth.getTransactionCount(address);
 
+    const {Transaction} = (await loadTxLib());
     const tx = new Transaction({
       nonce: `0x${parseInt(nonce, 16)}`,
-      gasPrice: numberToHex(toWei(gasPrice, 'gwei')),
+      gasPrice: numberToHex(toWei(gasPrice.toString(), 'gwei')),
       gasLimit: numberToHex(gasLimit),
       to: to,
-      value: numberToHex(toWei(value, 'ether')),
+      value: numberToHex(toWei(value.toString(), 'ether')),
       data: '0x0',
   });
 
@@ -39,8 +52,12 @@ export async function sendRawTransaction(to, value, gasPrice, gasLimit) {
 
   const raw = bytesToHex(tx.serialize());
 
-  web3.sendRawTrasnaction(raw, function(error, hash){
-    if(error) console.error(error);
-    console.log('Hash: ', hash);
-    });
+  return new Promise((resolve, reject) => {
+    web3.eth.sendSignedTransaction(raw, function(error, hash){
+        if(error) reject(error);
+        console.log('Hash: ', hash);
+        return resolve(hash);
+        });
+  });
+ 
 }
