@@ -33,11 +33,13 @@ const { numberToHex, toWei, bytesToHex } = Web3.utils;
 // }
 
 export async function sendRawTransaction(to, value, gasPrice, gasLimit) {
+
     const provider = (await loadProvider());
     const address = provider.getAddress(0);
     const web3 = new Web3('http://localhost:5005/api/eth/request');
     const nonce = await web3.eth.getTransactionCount(address);
-
+    
+    // Construct transaction
     const {Transaction} = (await loadTxLib());
     const tx = new Transaction({
       nonce: `0x${parseInt(nonce, 16)}`,
@@ -52,6 +54,7 @@ export async function sendRawTransaction(to, value, gasPrice, gasLimit) {
 
   const raw = bytesToHex(tx.serialize());
 
+  // broadcast transaction
   return new Promise((resolve, reject) => {
     web3.eth.sendSignedTransaction(raw, function(error, hash){
         if(error) reject(error);

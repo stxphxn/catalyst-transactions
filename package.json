@@ -12,8 +12,8 @@
   },
   "main": "index.js",
   "dependencies": {
-    "@catalyst-net-js/truffle-provider": "^0.3.0",
-    "@catalyst-net-js/tx": "^0.3.0",
+    "@catalyst-net-js/truffle-provider": "^0.3.7",
+    "@catalyst-net-js/tx": "^0.3.7",
     "core-js": "^3.6.4",
     "ethers": "^4.0.46",
     "vue": "^2.6.11",

@@ -2,7 +2,7 @@
   <v-app>
     <v-content>
       <v-container>
-    <v-row class="flex justify-center text-center">
+      <v-row class="flex justify-center text-center">
        <v-col cols="12">
           <v-text-field
             v-model="to"
@@ -37,8 +37,8 @@
       <v-col cols="12">
       <v-btn text small color="primary" @click="clear">Clear</v-btn>
       </v-col>
-       <v-col v-if="result" cols="12">
-      Transaction hash: {{ result }}
+      <v-col v-if="result" cols="12">
+        Transaction hash: {{ result }}
       </v-col>
     </v-row>
       </v-container>
